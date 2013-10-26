@@ -13,11 +13,11 @@ class Max7219
 public:
 	explicit Max7219(byte dataInPin, byte loadPin, byte clockPin, byte numMax = 1);
 	~Max7219() {}
-	void maxSingle(byte reg, byte col);
-	void maxOne(byte maxNr, byte reg, byte col);
-	void maxAll(byte reg, byte col);
-	void setIntensity(byte intensity); // range 0..15
-	void fill(byte pattern = 0xff);
+	void maxSingle(byte reg, byte col) const;
+	void maxOne(byte maxNr, byte reg, byte col) const;
+	void maxAll(byte reg, byte col) const;
+	void setIntensity(byte intensity) const; // range 0..15
+	void fill(byte pattern = 0xff) const;
 	void clear()
 	{
 		fill(0);
@@ -29,14 +29,14 @@ public:
 #endif
 
 #ifdef SUPPORT_SCROLLING
-	void resetScrollText(byte *text, boolean inverse = false);
+	void resetScrollText(const byte *text, boolean inverse = false);
 	void doScrollLeft();
 	void doScrollUp();
-	void setToCharacter(byte character, boolean inverse = false);
+	void setToCharacter(byte character, boolean inverse = false) const;
 #endif
 
 private:
-	void putByte(byte data);
+	void putByte(byte data) const;
 	byte m_dataInPin;
 	byte m_loadPin;
 	byte m_clockPin;
@@ -48,10 +48,10 @@ private:
 #endif
 
 #ifdef SUPPORT_SCROLLING
-	word getCharOffset(byte theChar);
+	word getCharOffset(byte theChar) const;
 	void scrollNextPixRowCol();
 
-	byte* m_scrollText;
+	const byte* m_scrollText;
 	word m_scrollIndex;
 	byte m_currScrollPixRowCol;
 	boolean m_inverseScroll;

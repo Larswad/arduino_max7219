@@ -1,6 +1,6 @@
 /*
 code for max 7219 from maxim,
-reduced and optimised for useing more then one 7219 in a row,
+reduced and optimised for using more then one 7219 in a row,
 ______________________________________
 
  Code History:
@@ -93,7 +93,7 @@ Max7219::Max7219(byte dataInPin, byte loadPin, byte clockPin, byte numMax)
 } // ctor
 
 
-void Max7219::putByte(byte data)
+void Max7219::putByte(byte data) const
 {
 	byte i = 8, mask;
 	while(i > 0) {
@@ -106,14 +106,14 @@ void Max7219::putByte(byte data)
 } // putByte
 
 
-void Max7219::fill(byte pattern)
+void Max7219::fill(byte pattern) const
 {
 	for(byte i = 1; i < 8; ++i)
 		maxSingle(1, pattern);
 } // fill
 
 
-void Max7219::maxSingle(byte reg, byte col)
+void Max7219::maxSingle(byte reg, byte col) const
 {
 	// maxSingle is the "easy"  function to use for a single max7219
 	digitalWrite(m_loadPin, LOW);		// begin
@@ -124,7 +124,7 @@ void Max7219::maxSingle(byte reg, byte col)
 } // maxSingle
 
 
-void Max7219::maxAll(byte reg, byte col)
+void Max7219::maxAll(byte reg, byte col) const
 {
 	// initialize  all  MAX7219's in the system
 	digitalWrite(m_loadPin, LOW);  // begin
@@ -137,12 +137,12 @@ void Max7219::maxAll(byte reg, byte col)
 } // maxAll
 
 
-void Max7219::setIntensity(byte intensity)
+void Max7219::setIntensity(byte intensity) const
 {
 	maxAll(max7219_reg_intensity, intensity bitand 0x0f);		// the first 0x0f is the value you can set (range: 0x00 to 0x0f)
 }
 
-void Max7219::maxOne(byte maxNr, byte reg, byte col)
+void Max7219::maxOne(byte maxNr, byte reg, byte col) const
 {
 	// maxOne is for adressing different MAX7219's,
 	// while having a couple of them cascaded
@@ -177,13 +177,11 @@ void Max7219::resetPercentage(unsigned int maxValue)
 		maxSingle(i, 0);
 } // resetPercentage
 
+static byte ledBitArray[] = { 128, 192, 224, 240, 248, 252, 254, 255  };
 
 void Max7219::showPercentage(unsigned int current)
 {
-	byte numLedsHigh = 0;
-
-	if(0 not_eq current)
-		numLedsHigh = (byte)(64 * 1000l / (m_percentMaxValue * 1000l / current));
+	byte numLedsHigh = (byte)(64l * current / m_percentMaxValue);
 
 	// no need to update if resulting in same amount of lit leds.
 	if(numLedsHigh == m_percentLastValue)
@@ -200,15 +198,8 @@ void Max7219::showPercentage(unsigned int current)
 //	}
 
 	// now update the remaining leds on the current row.
-	while(numLedsHigh > 0) {
-		byte currRowLit = 8;
-		if(numLedsHigh < 8)
-			currRowLit = numLedsHigh;
-		byte rowBits = 0;
-		for(byte i = 0; i < currRowLit; ++i)
-			rowBits or_eq (1 << (7 - i));
-
-		maxSingle(row++, rowBits);
+	while(0 not_eq numLedsHigh) {
+		maxSingle(row++, numLedsHigh < 8 ? ledBitArray[numLedsHigh] : 255);
 		if(numLedsHigh >= 8)
 			numLedsHigh -= 8;
 		else
@@ -224,7 +215,8 @@ void Max7219::showPercentage(unsigned int current)
 static byte scrollChar[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 extern byte parallax_font[];
 
-void Max7219::resetScrollText(byte* text, boolean inverse)
+
+void Max7219::resetScrollText(const byte* text, boolean inverse)
 {
 	m_scrollText = text;
 	m_scrollIndex = 0;
@@ -271,7 +263,7 @@ void Max7219::doScrollUp()
 } // doScrollUp
 
 
-void Max7219::setToCharacter(byte character, boolean inverse)
+void Max7219::setToCharacter(byte character, boolean inverse) const
 {
 	word charOffset = getCharOffset(character);
 	for(byte i = 0; i < 8; ++i) {
@@ -298,7 +290,7 @@ void Max7219::scrollNextPixRowCol()
 } // scrollNextPixRowCol
 
 
-word Max7219::getCharOffset(byte theChar)
+word Max7219::getCharOffset(byte theChar) const
 {
 	// scroll the current char.
 	if(theChar >= 64)
