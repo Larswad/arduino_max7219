@@ -29,7 +29,7 @@ public:
 #endif
 
 #ifdef SUPPORT_SCROLLING
-	void resetScrollText(const byte *text, boolean inverse = false);
+	void resetScrollText(const byte* text, boolean inverse = false);
 	void doScrollLeft();
 	void doScrollUp();
 	void setToCharacter(byte character, boolean inverse = false) const;

@@ -177,7 +177,7 @@ void Max7219::resetPercentage(unsigned int maxValue)
 		maxSingle(i, 0);
 } // resetPercentage
 
-static byte ledBitArray[] = { 128, 192, 224, 240, 248, 252, 254, 255  };
+static byte ledBitArray[] PROGMEM = { 128, 192, 224, 240, 248, 252, 254, 255  };
 
 void Max7219::showPercentage(unsigned int current)
 {
@@ -199,7 +199,7 @@ void Max7219::showPercentage(unsigned int current)
 
 	// now update the remaining leds on the current row.
 	while(0 not_eq numLedsHigh) {
-		maxSingle(row++, numLedsHigh < 8 ? ledBitArray[numLedsHigh] : 255);
+		maxSingle(row++, numLedsHigh < 8 ? pgm_read_byte_near(ledBitArray + numLedsHigh) : 255);
 		if(numLedsHigh >= 8)
 			numLedsHigh -= 8;
 		else
@@ -230,14 +230,14 @@ void Max7219::resetScrollText(const byte* text, boolean inverse)
 void Max7219::doScrollLeft()
 {
 	// scroll the current char.
-	word theChar = m_scrollText[m_scrollIndex];
+	word theChar = pgm_read_byte_near(m_scrollText + m_scrollIndex);
 	if(theChar >= 64)
 		theChar -= 64;
 	word charOffset = theChar * 8;
 
 	for(byte i = 0; i < 8; ++i) {
 		scrollChar[i] <<= 1;
-		boolean bitset = (parallax_font[charOffset++] bitand (1 << (7 - m_currScrollPixRowCol))) not_eq 0;
+		boolean bitset = (pgm_read_byte_near(parallax_font + charOffset++) bitand (1 << (7 - m_currScrollPixRowCol))) not_eq 0;
 		if(m_inverseScroll)
 			bitset ^= true;
 		scrollChar[i] or_eq bitset ? (1 << 0) : 0;
@@ -255,7 +255,8 @@ void Max7219::doScrollUp()
 		scrollChar[i] = scrollChar[i + 1];
 		maxSingle(i + 1, scrollChar[i]);
 	}
-	byte row = parallax_font[getCharOffset(m_scrollText[m_scrollIndex]) + m_currScrollPixRowCol];
+	word charOffset = getCharOffset(pgm_read_byte_near(m_scrollText + m_scrollIndex)) + m_currScrollPixRowCol;
+	byte row = pgm_read_byte_near(parallax_font + charOffset);
 	scrollChar[i] = m_inverseScroll ? ~row : row;
 	maxSingle(i + 1, scrollChar[i]);
 
@@ -267,7 +268,7 @@ void Max7219::setToCharacter(byte character, boolean inverse) const
 {
 	word charOffset = getCharOffset(character);
 	for(byte i = 0; i < 8; ++i) {
-		byte val = parallax_font[charOffset++];
+		byte val = pgm_read_byte_near(parallax_font + charOffset++);
 		maxSingle(i + 1, inverse ? ~val : val);
 	}
 } // setChar
@@ -284,7 +285,7 @@ void Max7219::scrollNextPixRowCol()
 		m_currScrollPixRowCol = 0;
 		m_scrollIndex++;
 		// null is a terminating char, if finding one restart scroll at first char.
-		if(!m_scrollText[m_scrollIndex])
+		if(!pgm_read_byte_near(m_scrollText + m_scrollIndex))
 			m_scrollIndex = 0;
 	}
 } // scrollNextPixRowCol
