@@ -177,7 +177,7 @@ void Max7219::resetPercentage(unsigned int maxValue)
 		maxSingle(i, 0);
 } // resetPercentage
 
-static byte ledBitArray[] PROGMEM = { 128, 192, 224, 240, 248, 252, 254, 255  };
+static const byte ledBitArray[] PROGMEM = { 128, 192, 224, 240, 248, 252, 254, 255  };
 
 void Max7219::showPercentage(unsigned int current)
 {
@@ -213,8 +213,6 @@ void Max7219::showPercentage(unsigned int current)
 #ifdef SUPPORT_SCROLLING
 
 static byte scrollChar[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-extern byte parallax_font[];
-
 
 void Max7219::resetScrollText(const byte* text, boolean inverse)
 {
@@ -237,7 +235,7 @@ void Max7219::doScrollLeft()
 
 	for(byte i = 0; i < 8; ++i) {
 		scrollChar[i] <<= 1;
-		boolean bitset = (pgm_read_byte_near(parallax_font + charOffset++) bitand (1 << (7 - m_currScrollPixRowCol))) not_eq 0;
+		boolean bitset = (scrollFontData(charOffset++) bitand (1 << (7 - m_currScrollPixRowCol))) not_eq 0;
 		if(m_inverseScroll)
 			bitset ^= true;
 		scrollChar[i] or_eq bitset ? (1 << 0) : 0;
@@ -251,12 +249,13 @@ void Max7219::doScrollLeft()
 void Max7219::doScrollUp()
 {
 	byte i = 0;
+
 	for(; i < 7; ++i) {
 		scrollChar[i] = scrollChar[i + 1];
 		maxSingle(i + 1, scrollChar[i]);
 	}
-	word charOffset = getCharOffset(pgm_read_byte_near(m_scrollText + m_scrollIndex)) + m_currScrollPixRowCol;
-	byte row = pgm_read_byte_near(parallax_font + charOffset);
+	word offset = charOffset(pgm_read_byte_near(m_scrollText + m_scrollIndex)) + m_currScrollPixRowCol;
+	byte row = scrollFontData(offset);
 	scrollChar[i] = m_inverseScroll ? ~row : row;
 	maxSingle(i + 1, scrollChar[i]);
 
@@ -266,9 +265,9 @@ void Max7219::doScrollUp()
 
 void Max7219::setToCharacter(byte character, boolean inverse) const
 {
-	word charOffset = getCharOffset(character);
+	word offset = charOffset(character);
 	for(byte i = 0; i < 8; ++i) {
-		byte val = pgm_read_byte_near(parallax_font + charOffset++);
+		byte val = scrollFontData(offset++);
 		maxSingle(i + 1, inverse ? ~val : val);
 	}
 } // setChar
@@ -291,13 +290,13 @@ void Max7219::scrollNextPixRowCol()
 } // scrollNextPixRowCol
 
 
-word Max7219::getCharOffset(byte theChar) const
+word Max7219::charOffset(byte theChar) const
 {
 	// scroll the current char.
 	if(theChar >= 64)
 		theChar -= 64;
 	return 8 * (word)theChar;
-} // getFontOffset
+} // charOffset
 
 
 #endif // SUPPORT_SCROLLING
@@ -328,7 +327,7 @@ word Max7219::getCharOffset(byte theChar) const
 
 	// if you use more then one max7219 the second one should look like this
 /*
-	maxOne(2,1,1);                       //  + - - - - - - -
+	maxOne(2,1,1);								         //  + - - - - - - -
 	maxOne(2,2,2);                       //  - + - - - - - -
 	maxOne(2,3,4);                       //  - - + - - - - -
 	maxOne(2,4,8);                       //  - - - + - - - -

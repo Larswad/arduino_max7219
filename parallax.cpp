@@ -4,9 +4,7 @@
 
 #ifdef SUPPORT_SCROLLING
 
-#define PARALLAX_FONT_SIZE 512
-
-byte parallax_font[PARALLAX_FONT_SIZE] PROGMEM =
+const byte parallax_font[PARALLAX_FONT_SIZE] PROGMEM =
 {
 	56,68,154,162,154,68,56,0,96,112,120,108,126,99,97,0,112,108,100,124,102,99,126,0,48,104,96,96,96,113,
 	30,0,112,120,108,102,99,99,126,0,56,96,96,124,96,112,31,0,28,48,48,62,48,48,48,0,24,52,96,96,102,115,
@@ -26,5 +24,15 @@ byte parallax_font[PARALLAX_FONT_SIZE] PROGMEM =
 	12,4,14,24,48,48,24,12,7,0,0,127,112,0,127,112,0,0,112,24,14,7,6,12,56,0,30,39,3,14,24,32,
 	48,24
 };
+
+const byte* scrollFont()
+{
+	return parallax_font;
+}
+
+byte scrollFontData(const word offset)
+{
+	return pgm_read_byte_near(scrollFont() + offset);
+}
 
 #endif

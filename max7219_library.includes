@@ -1,3 +1,6 @@
-D:/Program/Arduino/libraries/max7219
-D:/Program/Arduino/hardware/arduino/avr/cores/arduino
-D:/Program/Arduino/hardware/tools/avr/avr/include
+~/arduino-1.5.8/libraries/max7219
+~/arduino-1.5.8/hardware/arduino/avr/cores/arduino
+~/arduino-1.5.8/hardware/tools/avr/avr/include
+//D:/Program/Arduino/libraries/max7219
+//D:/Program/Arduino/hardware/arduino/avr/cores/arduino
+//D:/Program/Arduino/hardware/tools/avr/avr/include

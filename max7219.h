@@ -3,10 +3,21 @@
 
 #include <Arduino.h>
 
+#ifdef UNDER_QT
+// Reason for defining this is only that Qt Creator should understand the define when browsing the source files
+// It won't be defined like this when compiling under arduino tools.
+#define PROGMEM
+#endif
+
 #define SUPPORT_SCROLLING
 #define SUPPORT_PERCENTAGE
 //#undef SUPPORT_SCROLLING
 //#undef SUPPORT_PERCENTAGE
+
+#ifdef SUPPORT_SCROLLING
+extern const byte* scrollFont();
+extern byte scrollFontData(const word offset);
+#endif
 
 class Max7219
 {
@@ -29,6 +40,8 @@ public:
 #endif
 
 #ifdef SUPPORT_SCROLLING
+#define PARALLAX_FONT_SIZE 512
+
 	void resetScrollText(const byte* text, boolean inverse = false);
 	void doScrollLeft();
 	void doScrollUp();
@@ -48,7 +61,7 @@ private:
 #endif
 
 #ifdef SUPPORT_SCROLLING
-	word getCharOffset(byte theChar) const;
+	word charOffset(byte theChar) const;
 	void scrollNextPixRowCol();
 
 	const byte* m_scrollText;
